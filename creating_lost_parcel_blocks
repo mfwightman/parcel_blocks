@@ -1,0 +1,26 @@
+--Creates parcel blocks in Southland, Otago, Westland, Nelson and Hanmer Springs that are not included in the other sql parcel block table
+--This query uses the table pb_nodes to build the polygons around the individual survey conversion adjustments
+--The 'populate_geometry_columns' script needs to be run so the geomtry columns are populated
+ 
+CREATE TABLE 
+	waca.missing_parcel_blocks AS
+SELECT
+	ST_ConcaveHull(ST_Collect(pb_nodes.shape),0.99),
+	adjustment_id,
+	description
+FROM
+	mawightman.pb_nodes
+WHERE
+	--description LIKE 'DN%'
+	--OR description LIKE 'IN%'
+	--OR description LIKE 'HK%'
+	--OR description LIKE 'NN%'
+	--OR description LIKE 'CH1%'
+	adjustment_id IS NOT NULL
+GROUP BY
+	pb_nodes.adjustment_id,
+	pb_nodes.description
+
+--drop table waca.missing_parcel_blocks
+--SELECT Populate_Geometry_Columns('waca.missing_parcel_blocks'::regclass)
+--GRANT ALL ON TABLE waca.missing_parcel_blocks TO sking
